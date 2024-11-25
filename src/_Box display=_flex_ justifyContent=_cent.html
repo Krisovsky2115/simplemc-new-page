@@ -1,0 +1,40 @@
+          <Box display="flex" justifyContent="center" sx={{ mb: 2 }} gridAutoColumns={'1fr 1fr'}>
+            <Card>
+              <CardHeader title="Obecnie graczy online" />
+              <CardContent>
+                <Typography variant="h4" align="center" gutterBottom>
+                  {playerCount} / 20
+                </Typography>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader title="Obecni gracze" />
+              <CardContent>
+                {players.length > 0 ? (
+                  players.map((player) => (
+                    <Box key={player.uuid} display="flex" alignItems="center" sx={{ mb: 2 }}>
+                      <img
+                        src={`https://mc-heads.net/avatar/${player}`}
+                        alt={player}
+                        style={{ width: 32, height: 32, marginRight: 8 , marginLeft: 8}}
+                      />
+                      <Typography variant="body1" color="text.primary">
+                        {player}
+                      </Typography>
+                    </Box>
+                  ))
+                ) : (
+                  <Typography variant="body1" align="center" color="text.secondary">
+                    Brak dostępnych graczy
+                  </Typography>
+                )}
+              </CardContent>
+            </Card>
+          </Box>
+          <Typography variant="h4" align="center" gutterBottom>
+            O projekcie
+          </Typography>
+          <Typography variant="body1" align="center" style={{ fontWeight: 'normal' }}>
+            XayMc.pl to serwer Survival + Działki...
+            {/* Remaining text */}
+          </Typography>

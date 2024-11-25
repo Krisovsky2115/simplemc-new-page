@@ -1,22 +1,20 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
-import Survival from './Survival'; // Import the Survival component
+import Survival from './survival/Main'; // Import the Survival component
 import Shop from './survival/Shop'; // Import the Shop component
-import Nav from './Nav'; // Import the Nav component
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
+import Rules from './survival/Rules';
+import Stats from './survival/Stats';
+import Contact from './survival/Contact';
 import './index.css';
-import { green, orange } from '@mui/material/colors';
+import Button from '@mui/material/Button';
+import CardContent from '@mui/material/CardContent';
+
 
 const servers = [
   {name: "Survival", placeholder: "survival", path: "../public/media/survival.jpg", description: "Dołącz do emocjonującej walki o przetrwanie w otwartym pełnym niespodzianek w świecie!"},
-  {name: "Skyblock", placeholder: "skyblock", path: "../public/media/skyblock.jpg", description: "Zbuduj swoje podniebne imperium i stań się właścicielem najlepszej wyspy na serwerze"},
 ]
 
 function Home() {
@@ -37,11 +35,13 @@ function Home() {
     >
       <Container maxWidth="md" sx={{ textAlign: 'center' }}>
         <Typography variant="h4" color="white" align="center" gutterBottom>
-          SimpleNetwork
+          XayMc.pl
         </Typography>
         <Typography variant="h6" color="white" align="center" gutterBottom>
-          More than game servers
+          Sieć serwerów Minecraft
         </Typography>
+
+
         <Box>
         {servers.map((server) => (
             <Box key={server.name} sx={{ display: 'flex', justifyContent: 'center', my: 2, backgroundImage: 'url(./media/' + server.placeholder + '.jpg)', backgroundSize: 'cover', backgroundPosition: 'center'}} className="cardServer">
@@ -59,9 +59,9 @@ function Home() {
 
               </CardContent>
           </Box>
-          ))}
+          ))} 
         </Box>
-      </Container>
+        </Container>
     </Box>
   );
 }
@@ -71,8 +71,12 @@ export default function App() {
     <Router>
         <Routes>
           <Route path="/" element={<Home />} />
+          {/* SurvivalRedirects */}
           <Route path="/survival" element={<Survival />} />
           <Route path="/shop" element={<Shop />} />
+          <Route path="/rules" element={<Rules />} />
+          <Route path='/statistics' element={<Stats />} />
+          <Route path='/contact' element={<Contact />} />
         </Routes>
     </Router>
   );
