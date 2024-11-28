@@ -28,54 +28,43 @@ import Alert from '@mui/material/Alert';
 
 // 100 - Ranks, 200 - Items, 300 - Services
 
-const products = [
-  { id: 0, name: 'Ranga Vip na 30 dni', 
-    description: 'Kupując rangę wspierasz naszą pracę przy projekcie, w zamian za jej zakup otrzymujesz nick z prefixem VIP oraz: \nDostęp do zestawu dla Vipa, \nDostęp do komendy /feed, która natychmiastowo uzupełni twój głód, \nMożliwość ustawienia do 3 home, \nDostęp do komendy /wb', 
-    image: '', 
-    price: '7.50 PLN',
-    type: 100},
-  { id: 1, name: 'Ranga Svip na 30 dni', 
-    description: 'Kupując rangę wspierasz naszą pracę przy projekcie, w zamian za jej zakup otrzymujesz nick z prefixem SVip oraz wszystko to co dostępne w pakiecie dla gracza Vip, a pondadto: \nDostęp do komendy /repair, \nMożliwość ustawienia do 5 home,', 
-    image: '', price: '15 PLN', 
-    type: 100 },
-  { id: 2, name: 'Ranga Sponsor na 30 dni', 
-    description: 'Kupując rangę wspierasz naszą pracę przy projekcie, w zamian za jej zakup otrzymujesz nick z prefixem Sponsor oraz wszystko to co dostępne w pakiecie dla gracza SuperVip i Vip, a pondadto: \nDostęp do komendy /repair all, \nMożliwość ustawienia do 10 home,', 
-    image: '', price: '25 PLN', 
-    type: 100 },
-  { id: 3, name: 'Klucz do srebrnej skrzyni', 
-    description: 'Kupując klucz wspierasz naszą pracę przy projekcie, w zamian za jego zakup otrzymujesz dostęp do otwarcia srebrnej skrzyni, która zawiera cenne przedmioty, które pomogą ci w rozwoju na serwerze.', 
-    image: '', price: '2.5 PLN / szt.', 
-    type: 200 },
-  { id: 4, name: 'Klucz do diamentowej skrzyni', 
-    description: 'Kupując klucz wspierasz naszą pracę przy projekcie, w zamian za jego zakup otrzymujesz dostęp do otwarcia diamentowej skrzyni, która zawiera cenne przedmioty, które pomogą ci w rozwoju na serwerze.', 
-    image: '', price: '2.5 PLN / szt.', 
-    type: 200 },
-  { id: 5, name: 'Klucz do netherytowej skrzyni', 
-    description: 'Kupując klucz wspierasz naszą pracę przy projekcie, w zamian za jego zakup otrzymujesz dostęp do otwarcia netherytowej skrzyni, która zawiera cenne przedmioty, które pomogą ci w rozwoju na serwerze.', 
-    image: '', price: '2.5 PLN / szt.', 
-    type: 200 },
-  { id: 6, name: 'Drop ze stone na 15 minut', 
-    description: 'Poszukujesz pomysłu jak szybko zdobyć surowce? Usługa dropu ze stone pomoże Ci w szybki i prosty sposób w trakcie kopania zdobyć najpotrzebniejsze surowce.', 
-    image: '', price: '8.65 PLN', 
-    type: 300 },
-  { id: 7, name: 'Drop ze stone na 30 minut', 
-    description: 'Poszukujesz pomysłu jak szybko zdobyć surowce? Usługa dropu ze stone pomoże Ci w szybki i prosty sposób w trakcie kopania zdobyć najpotrzebniejsze surowce.', 
-    image: '', price: '11.40 PLN', 
-    type: 300 },
-  { id: 8, name: 'Drop ze stone na 45 minut', 
-    description: 'Poszukujesz pomysłu jak szybko zdobyć surowce? Usługa dropu ze stone pomoże Ci w szybki i prosty sposób w trakcie kopania zdobyć najpotrzebniejsze surowce.', 
-    image: '', price: '15.60 PLN', 
-    type: 300 },
-  { id: 9, name: 'Unban na serwerze', 
-    description: 'Zostałeś zbanowany i chcesz rozpocząć z czystą kartą? Ta usługa pozwoli Ci na odbanowanie konta i powrót na serwer. (Nie dotyczy to banów za najcieższe przewinienia)', 
-    image: '', price: '22.00 PLN', 
-    type: 300 },
-];
 
 export default function Shop() {
   const [open, setOpen] = React.useState(false);
   const [selectedProduct, setSelectedProduct] = React.useState(null);
 
+
+  const [products, setProducts] = useState([]);
+  const [productName, setProductName] = useState("");
+  const [productPrice, setProductPrice] = useState(null);
+  const [productDescription, setProductDescription] = useState("");
+  const [productImage, setProductImage] = useState("");
+  const [productID, setProductID] = useState(null);
+
+
+  
+  useEffect(() => {
+      fetch('http://149.50.99.11:4001/products'
+        ,{
+          headers : { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+           }
+        }
+        )
+        .then(function(response){
+          console.log(response)
+          return response.json();
+        })
+        .then(function(myJson) {
+          console.log(myJson);
+          
+          setProducts(myJson);
+          
+
+        }
+        );
+  }, []);
 
 
   const handleClickOpen = (product) => {
@@ -100,7 +89,8 @@ const handleChangeCheckbox = (event) => {
     console.log(event.target.value)
 }
 
-const [filterType, setFilterType] = React.useState(400); // Initialize with "Pokaż wszystko"
+const [filterType, setFilterType] = React.useState("all"); // Initialize with "Pokaż wszystko"
+const [filterName, setFilterName] = React.useState("all"); // Initialize with "Pokaż wszystko"
 
 const handleChangeFilter = (event) => {
   setFilterType(event.target.value);
@@ -122,7 +112,7 @@ const [players, setPlayers] = useState([]);
 useEffect(() => {
   const fetchPlayers = async () => {
     try {
-      const response = await fetch('http://149.50.99.11:4000/onlineplayers', {
+      const response = await fetch('http://149.50.99.11:4001/onlineplayers', {
         headers: { 
           'Content-Type': 'application/json',
           'Accept': 'application/json'
@@ -150,14 +140,19 @@ useEffect(() => {
 
 const [option, setOption] = React.useState('');
 
-const handleClickBuy = () => {
-  if (players.some(option => option.name === option)) {
+const handleClickBuy = (event) => {
+  if (!players.some(player => player.name === option)) {
     alert('Takiego gracza nie ma na serwerze!');
     console.log(option);
     return;
+
+    //player = event.target.value;
+    //id = event.target.id;
   }
 
-}
+  // Proceed with the purchase
+  console.log('Proceeding with purchase for player:', option);
+};
 
 
   return (
@@ -188,20 +183,20 @@ const handleClickBuy = () => {
                     onChange={handleChangeFilter}
                     required
                 >
-                    <MenuItem value={100}>Rangi</MenuItem>
-                    <MenuItem value={200}>Przedmioty</MenuItem>
-                    <MenuItem value={300}>Usługi</MenuItem>
-                    <MenuItem value={400}>Pokaż wszystko</MenuItem>
+                    <MenuItem value={"rank"}>Rangi</MenuItem>
+                    <MenuItem value={"item"}>Przedmioty</MenuItem>
+                    <MenuItem value={"service"}>Usługi</MenuItem>
+                    <MenuItem value={"all"}>Pokaż wszystko</MenuItem>
                 </Select>
             </FormControl>
             </Box>
         </Grid>
         <Grid container spacing={4}>
         {products.filter((product) => {
-            if (filterType === 400) return true; // Show all
-            if (filterType === 100 && product.name.includes('Ranga')) return true; // Show only ranks
-            if (filterType === 200 && !product.name.includes('Ranga')) return true; // Show only items
-            if (filterType === 300 && product.name.includes('Usługa')) return true; // Show only services
+            if (filterType === "all") return true; // Show all
+            if (filterType === "rank") return products.id.includes("rank"); // Show only ranks
+            if (filterType === "item") return products.id.includes("item"); // Show only items
+            if (filterType === "service") return products.id.includes("service"); // Show only services
             return false;
           }).map((product) => (
             <Grid item key={product.id} xs={12} sm={6} md={4}>
@@ -209,7 +204,7 @@ const handleClickBuy = () => {
                 <CardMedia
                   component="img"
                   sx={{ pt: '56.25%' }}
-                  image={product.image ? product.image : '/media/server_logo.jpg'}
+                  image={product.image ? product.image: '/media/server_logo.jpg'}
 
                   alt={product.name}
                 />
@@ -218,7 +213,7 @@ const handleClickBuy = () => {
                     {product.name}
                   </Typography>
                   <Typography variant="h6" color="text.secondary">
-                    {product.price}
+                    {product.description}
                   </Typography>
                 </CardContent>
                 <Button variant="contained" color="primary" onClick={() => handleClickOpen(product)}>
@@ -236,7 +231,7 @@ const handleClickBuy = () => {
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          {selectedProduct && selectedProduct.name}
+          {selectedProduct && selectedProduct.name} <a style="display: none"> {selectedProduct && selectedProduct.id} </a>
         </DialogTitle>
         <DialogContent>
         <DialogContentText id="alert-dialog-description" sx={{ whiteSpace: 'pre-wrap', color: 'unset', mt: 1}}>
@@ -246,7 +241,7 @@ const handleClickBuy = () => {
           <DialogContentText id="alert-dialog-description" color='unset' sx={{mt: 2}}>
             Cena zakupu: <span style={{color: "#999694"}}> {selectedProduct && selectedProduct.price} </span>
           </DialogContentText>
-          <form noValidate autoComplete="off" typeof='POST'>
+          <form noValidate autoComplete="off" typeof='GET'>
           <Autocomplete
            disablePortal
            options={players}
@@ -285,13 +280,14 @@ const handleClickBuy = () => {
                     id="demo-simple-select"
                     value={age}
                     label="Age"
-                    onChange={handleChange}
+                    onChange={handleClickBuy(target.value)}
                     required
                 >
                     <MenuItem value={10}>Przelew online / BLIK</MenuItem>
                     <MenuItem value={20}>PaySafeCard</MenuItem>
                     <MenuItem value={30}>SMS+</MenuItem>
                     <MenuItem value={40}>SMS</MenuItem>
+                    <MenuItem value={50}>Waluta w grze</MenuItem>
                 </Select>
                 </FormControl>
             </Box>
