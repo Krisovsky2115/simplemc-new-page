@@ -11,6 +11,8 @@ import Contact from './survival/Contact';
 import './index.css';
 import Button from '@mui/material/Button';
 import CardContent from '@mui/material/CardContent';
+import PrivacyPolicy from './survival/PrivacyPolicy';
+import RoadMap from './survival/RoadMap';
 
 
 const servers = [
@@ -70,13 +72,16 @@ export default function App() {
   return (
     <Router>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Survival />} />
           {/* SurvivalRedirects */}
           <Route path="/survival" element={<Survival />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/rules" element={<Rules />} />
-          <Route path='/statistics' element={<Stats />} />
+          <Route path="/privacypolicy" element={<PrivacyPolicy/>}/>
+          <Route path='/stats' element={<Stats />} />
           <Route path='/contact' element={<Contact />} />
+          <Route path="/roadmap" element={<RoadMap />} />
+          <Route path="/Main" element={<Survival />} />
         </Routes>
     </Router>
   );

@@ -37,7 +37,7 @@ export default function Survival() {
   const [players, setPlayers] = useState([]);
   
   useEffect(() => {
-      fetch('http://149.50.99.11:4000/onlineplayers'
+      fetch(ApiURL + '/onlineplayers'
         ,{
           headers : { 
             'Content-Type': 'application/json',
@@ -169,10 +169,10 @@ export default function Survival() {
                 O nas
               </Typography>
               <Typography variant='body1' align='left' gutterBottom>
-                XayMc.pl to sieć serwerów Minecraft, która powstała w 2024 roku. Naszym celem jest zapewnienie rozrywki dla graczy z całego świata, 
-                stosując nowoczesne rozwiązania technologiczne i dbając o jakość świadczonych usług oraz zadowolenie naszych użytkowników. Stworzyliśmy sieć
-                serwerów, która pozwala na grę w różne tryby, takie jak Survival, SkyBlock, czy Creative. Nasze serwery są dostępne 24/7, dzięki czemu nasi 
-                gracze mogą grać w kazdy dzien, a takze w wolnych godzinach. Zajmujemy sie tym, aby zapewnić graczom wyjańcza zabawe oraz radosć z graniem.
+                XayMc.pl to serwer survival + działki, który nie jest taki jak pozostałe. Nie lubimy nudy i gardzimy monotonią non stop poszukując czegoś unikalnego i kreatywnego,
+                co sprawi, że nasz serwer będzie wyjątkowy. Nasz serwer to miejsce, w którym każdy gracz znajdzie coś dla siebie. Nowa edycja przyniosła sporo zmian w zakresie ekonomii, 
+                mechaniki rozgrywki a także naprawiła wiele zgłoszonych błędów przez nawszych graczy. Dołącz do nas już dziś stając się 
+                elemenentem tej niesamowitej społeczności.
               </Typography>
             </Container>
         </Box>
@@ -216,3 +216,6 @@ export default function Survival() {
     </ThemeProvider>
   );
 }
+
+
+export const ApiURL = "http://149.50.99.11:4001";

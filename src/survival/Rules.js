@@ -165,7 +165,15 @@ export default function Rules() {
                 </Box>
                 <Box id={5}>
                 §5 Taryfikator kar
-                {rules.filter(rule => rule.paragraph === 4).map(rule => (
+                {rules.filter(rule => rule.paragraph === 5).map(rule => (
+                    <Typography key={rule.paragraph} variant="body1" gutterBottom align='left'>
+                        {rule.score}.{rule.textOfRule}
+                    </Typography>
+                ))}
+                </Box>
+                <Box id={6}>
+                §6 Sklep serwera
+                {rules.filter(rule => rule.paragraph === 6).map(rule => (
                     <Typography key={rule.paragraph} variant="body1" gutterBottom align='left'>
                         {rule.score}.{rule.textOfRule}
                     </Typography>

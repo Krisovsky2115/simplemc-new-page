@@ -1,5 +1,4 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
@@ -23,7 +22,15 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 import Checkbox from '@mui/material/Checkbox'
 import Autocomplete from '@mui/material/Autocomplete'
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import { ApiURL } from './Main';
+import { pink } from '@mui/material/colors';
 import Alert from '@mui/material/Alert';
+import Stack from '@mui/material/Stack';
+import Badge from '@mui/material/Badge';
+import { grey } from '@mui/material/colors';
+import Snackbar from '@mui/material/Snackbar';
 
 
 // 100 - Ranks, 200 - Items, 300 - Services
@@ -31,20 +38,15 @@ import Alert from '@mui/material/Alert';
 
 export default function Shop() {
   const [open, setOpen] = React.useState(false);
-  const [selectedProduct, setSelectedProduct] = React.useState(null);
+  const [selectedProduct, setSelectedProduct] = React.useState([]);
 
 
   const [products, setProducts] = useState([]);
-  const [productName, setProductName] = useState("");
-  const [productPrice, setProductPrice] = useState(null);
-  const [productDescription, setProductDescription] = useState("");
-  const [productImage, setProductImage] = useState("");
-  const [productID, setProductID] = useState(null);
 
 
-  
+
   useEffect(() => {
-      fetch('http://149.50.99.11:4001/products'
+      fetch(ApiURL + '/products'
         ,{
           headers : { 
             'Content-Type': 'application/json',
@@ -85,12 +87,8 @@ const handleChangeNickname = (event) => {
     console.log(event.target.value)
 }
 
-const handleChangeCheckbox = (event) => {
-    console.log(event.target.value)
-}
 
 const [filterType, setFilterType] = React.useState("all"); // Initialize with "Pokaż wszystko"
-const [filterName, setFilterName] = React.useState("all"); // Initialize with "Pokaż wszystko"
 
 const handleChangeFilter = (event) => {
   setFilterType(event.target.value);
@@ -106,58 +104,143 @@ const handleVoucherClose = () => {
   setVoucherOpen(false);
 }
 
+const navigate = useNavigate();
+
+const handleNavigateToRules = () => {
+  navigate('/rules');
+}
+
+const handleNavigateToPrivacy = () => { 
+  navigate('/privacypolicy');
+}
+
+// chceckbox
+const [checked, setChecked] = React.useState(false);
+const handleChangeCheckbox = (event) => {
+  console.log(event.target.value)
+  setChecked(event.target.checked);
+}
+
+
 
 const [players, setPlayers] = useState([]);
 
 useEffect(() => {
-  const fetchPlayers = async () => {
+  const fetchPlayers = () => {
     try {
-      const response = await fetch('http://149.50.99.11:4001/onlineplayers', {
+      fetch(ApiURL + '/onlineplayers', {
         headers: { 
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         }
+      }).then((response) => {
+        return response.json();
+      }).then((json) => {
+        console.log(json);
+        setPlayers(json);
+      }).catch((error) => {
+        console.error('Error fetching server data:', error);
       });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log(data);
-      setPlayers(data);
     } catch (error) {
       console.error('Error fetching server data:', error);
-    } finally {
-      // Schedule the next request after the current one completes
-      setTimeout(fetchPlayers, 600);
     }
-  };
-
-  // Start the first request
-  fetchPlayers();
-}, []);
-
-const [option, setOption] = React.useState('');
-
-const handleClickBuy = (event) => {
-  if (!players.some(player => player.name === option)) {
-    alert('Takiego gracza nie ma na serwerze!');
-    console.log(option);
-    return;
-
-    //player = event.target.value;
-    //id = event.target.id;
   }
 
-  // Proceed with the purchase
-  console.log('Proceeding with purchase for player:', option);
+  // Start the interval to fetch players every second
+  const interval = setInterval(fetchPlayers, 1000);
+
+  // Start the first request immediately
+  fetchPlayers();
+
+  return () => {
+    // Cleanup
+    clearInterval(interval);
+  }
+}, []);
+
+const [enteredName, setEnteredName] = React.useState('');
+
+// snackbar
+const [openSnackbar, setOpenSnackbar] = React.useState(false);
+const handleClick = () => {
+  openSnackMessage();
+  setOpenSnackbar(true);
+};
+
+const handleCloseSnack = (event, reason) => {
+  if (reason === 'clickaway') {
+    return;
+  }
+
+  setOpenSnackbar(false);
+};
+
+const [count, setCount] = useState(0);
+
+const AnimatedCounter = ({ end }) => {
+
+  useEffect(() => {
+    let start = 0;
+    const duration = 4903994343; // 2 seconds
+    const increment = end / (duration / 100);
+
+    const counter = setInterval(() => {
+      start += increment;
+      if (start >= end) {
+        clearInterval(counter);
+        setCount(end);
+      } else {
+        setCount(Math.ceil(start));
+      }
+    }, 100);
+
+    return () => clearInterval(counter);
+  }, [end]);
+};
+
+
+const openSnackMessage = () => {
+  return (
+    <Snackbar open={openSnackbar} anchorOrigin="bottomRight" autoHideDuration={6000} onClose={handleCloseSnack}>
+      <Alert onClose={handleCloseSnack} severity="error" sx={{ width: '100%' }}>
+        Musisz podać swój nick!
+      </Alert>
+    </Snackbar>
+  );
+};
+
+const handleClickBuy = (event) => {
+  event.preventDefault();
+
+  if (!enteredName) {
+    alert("Musisz wybrać z listy lub podać swój nick!")
+    return;
+  }
+
+  fetch(ApiURL + '/execute', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify({
+      "player": enteredName,
+      "productID": selectedProduct.productID
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log(data);
+  })
+  .catch((error) => {
+    console.error('Error:', error);
+  });
 };
 
 
   return (
     <Nav>
-      <Container sx={{ py: 8 }} maxWidth="md">
+      <Container fullWidth sx={{ py: 8 }}>
         <Box fullWidth sx={{ mb: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <Typography variant="h4" align="center" gutterBottom>
             Sklep serwerowy
@@ -166,12 +249,15 @@ const handleClickBuy = (event) => {
             Zrealizuj voucher
           </Button>
         </Box>
+        <Box fullWidth sx={{ mb: 4, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+        <Button variant="text" color="primary" sx={{ mt: 2 }} onClick={handleNavigateToRules}>
+            Regulamin sklepu
+          </Button>
+          <Button variant="text" color="primary" sx={{ mt: 2 }} onClick={handleNavigateToPrivacy}>
+            Polityka prywatności
+          </Button>
+        </Box>
 
-        <Alert severity="info" sx={{ mb: 4 }}>
-          Funkcjonalność sklepu w przygotowaniu.
-        </Alert>
-
-        <Grid>
         <Box sx={{mt: 2}} fullWidth>
             <FormControl fullWidth sx={{mb: 2}}>
                 <InputLabel id="demo-simple-select-label">Filtruj wg. produktu</InputLabel>
@@ -190,37 +276,67 @@ const handleClickBuy = (event) => {
                 </Select>
             </FormControl>
             </Box>
-        </Grid>
-        <Grid container spacing={4}>
+              <Alert severity="primary" sx={{fontSize: "large", textAlign: 'center', alignContent: 'center', mb: 3}} >
+              Promocja premierowa, nawet do -20%
+            </Alert>
+        <Grid container spacing={4} sx={{width: "100%"}}>
         {products.filter((product) => {
             if (filterType === "all") return true; // Show all
-            if (filterType === "rank") return products.id.includes("rank"); // Show only ranks
-            if (filterType === "item") return products.id.includes("item"); // Show only items
-            if (filterType === "service") return products.id.includes("service"); // Show only services
+            if (filterType === "rank") return product.productID.includes("rank"); // Show only ranks
+            if (filterType === "item") return product.productID.includes("item"); // Show only items
+            if (filterType === "service") return product.productID.includes("service"); // Show only services
             return false;
           }).map((product) => (
-            <Grid item key={product.id} xs={12} sm={6} md={4}>
-              <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                <CardMedia
-                  component="img"
-                  sx={{ pt: '56.25%' }}
-                  image={product.image ? product.image: '/media/server_logo.jpg'}
-
-                  alt={product.name}
-                />
-                <CardContent sx={{ flexGrow: 1 }}>
-                  <Typography gutterBottom variant="h5" component="h2">
-                    {product.name}
-                  </Typography>
-                  <Typography variant="h6" color="text.secondary">
-                    {product.description}
-                  </Typography>
-                </CardContent>
-                <Button variant="contained" color="primary" onClick={() => handleClickOpen(product)}>
-                  Szczegóły oferty
-                </Button>
-              </Card>
-            </Grid>
+            <React.Fragment key={product.id}>
+              <Grid item xs={12} sm={12} md={4} xxl={4}>
+                {product.discount > 0 && (
+                      <Badge badgeContent={"Promocja"} color="primary" size="large">
+                    <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', width: "100%" }}>
+                      <CardMedia
+                        component="img"
+                        image={product.iconURL}
+                        alt={product.name}
+                      />
+                      <CardContent sx={{ flexGrow: 1 }}>
+                        <Typography gutterBottom variant="h5" component="h2">
+                          {product.name}
+                        </Typography>
+                        <Typography gutterBottom variant="h5" component="h6">
+                          <span style={{color: pink[300]}}> {product.discount}</span> zł <span style={{color: grey[100], textDecoration: 'line-through', fontSize: "medium"}}>{product.price} zł</span> 
+                        </Typography>
+                        <Typography variant='body1' color='text.primary'>
+                          Promocja kończy się za: {count}
+                        </Typography>
+                      </CardContent>
+                      <Button variant="contained" color="secondary" onClick={() => handleClickOpen(product)}>
+                        Kup teraz
+                      </Button>
+                      
+                    </Card>
+                  </Badge>
+                )}
+                {product.discount === 0 && (
+                  <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', width: "100%" }}>
+                    <CardMedia
+                      component="img"
+                      image={product.iconURL}
+                      alt={product.name}
+                    />
+                    <CardContent sx={{ flexGrow: 1 }}>
+                      <Typography gutterBottom variant="h5" component="h2">
+                        {product.name}
+                      </Typography>
+                      <Typography gutterBottom variant="h5" component="h6">
+                        <span style={{color: pink[300]}}>{product.price}</span> zł
+                      </Typography>
+                    </CardContent>
+                    <Button variant="contained" color="secondary" onClick={() => handleClickOpen(product)}>
+                      Kup teraz
+                    </Button>
+                  </Card>
+                )}
+              </Grid>
+            </React.Fragment>
           ))}
         </Grid>
       </Container>
@@ -230,36 +346,41 @@ const handleClickBuy = (event) => {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
+        <form noValidate autoComplete="off" typeof='GET' onSubmit={handleClickBuy}>
         <DialogTitle id="alert-dialog-title">
-          {selectedProduct && selectedProduct.name} <a style="display: none"> {selectedProduct && selectedProduct.id} </a>
+          <ShoppingCartIcon sx={{mr: 1}} fontSize='small'/>{selectedProduct && selectedProduct.name} <a style={{display: "none"}}> {selectedProduct && selectedProduct.id} </a>
         </DialogTitle>
         <DialogContent>
         <DialogContentText id="alert-dialog-description" sx={{ whiteSpace: 'pre-wrap', color: 'unset', mt: 1}}>
           Opis produktu: <br />
         <span style={{color: "#999694"}}>{selectedProduct && selectedProduct.description} </span>
         </DialogContentText>
-          <DialogContentText id="alert-dialog-description" color='unset' sx={{mt: 2}}>
-            Cena zakupu: <span style={{color: "#999694"}}> {selectedProduct && selectedProduct.price} </span>
-          </DialogContentText>
-          <form noValidate autoComplete="off" typeof='GET'>
+          {selectedProduct && selectedProduct.discount > 0 ? (
+            <DialogContentText id="alert-dialog-description" color='unset' sx={{mt: 2}}>
+            Cena zakupu: <span style={{textDecoration: "line-through", color: "#999694"}}> {selectedProduct && selectedProduct.price} zł</span> <span style={{color: "#999694"}}> {selectedProduct && selectedProduct.discount} zł</span> 
+            </DialogContentText>
+          ) :           <DialogContentText id="alert-dialog-description" color='unset' sx={{mt: 2}}>
+          Cena zakupu: <span style={{color: 'secondary'}}> {selectedProduct && selectedProduct.price} zł</span> 
+        </DialogContentText>
+        }
           <Autocomplete
            disablePortal
            options={players}
-           getOptionLabel={(option) => option}
+           getOptionLabel={(enteredName) => enteredName}
            sx={{ mt: 2 }}
            fullWidth
-           renderOption={(props, option) => (
+           renderOption={(props, enteredName) => (
              <Box component="li" {...props} display="flex" alignItems="center">
                <img
-                 src={`https://mc-heads.net/avatar/${option}`}
-                 alt={option.name}
+                 src={`https://mc-heads.net/avatar/${enteredName}`}
+                 alt={enteredName.name}
                  style={{ width: 32, height: 32, marginRight: 8 }}
                />
-               {option}
+               {enteredName}
              </Box>
            )}
            onChange={(event, newValue) => {
-            setOption(newValue ? newValue.name : '');
+            setEnteredName(newValue);
           }}
            renderInput={(params) => (
             <Box display="flex" alignItems="center">
@@ -268,7 +389,7 @@ const handleClickBuy = (event) => {
                 alt={params.inputProps.value}
                 style={{ width: 32, height: 32, marginRight: 8 }}
               />
-              <TextField {...params} label="Nickname" />
+              <TextField {...params} label="Nickname" value={enteredName} />
             </Box>
           )}
           />
@@ -280,41 +401,41 @@ const handleClickBuy = (event) => {
                     id="demo-simple-select"
                     value={age}
                     label="Age"
-                    onChange={handleClickBuy(target.value)}
                     required
+                    onChange={handleChange}
                 >
                     <MenuItem value={10}>Przelew online / BLIK</MenuItem>
                     <MenuItem value={20}>PaySafeCard</MenuItem>
                     <MenuItem value={30}>SMS+</MenuItem>
                     <MenuItem value={40}>SMS</MenuItem>
                     <MenuItem value={50}>Waluta w grze</MenuItem>
+                    {/* Bank transfer - przelew online, psc - paysafecard, sms - sms, cash - waluta w grze */}
                 </Select>
                 </FormControl>
             </Box>
 
             <Box sx={{mt: 2}}>
                 <FormControlLabel
-                  label="Zakupując produkt, nimiejszym oświadczam, że akcpetuję Regulamin sklepu oraz Regulamin serwera"
+                  label={<Typography variant='underline' color='primary'>Zapoznałem się z <a href="/rules" target="_blank" style={{color: 'unset'}} rel="noopener noreferrer"> regulaminem sklepu </a> i <a href='/privacypolicy' target="_blank" style={{color: 'unset'}} rel="noopener noreferrer"> polityką prywatności</a></Typography>}
                   control={
                     <Checkbox
                       value=""
-                      checked={false}
                       onChange={handleChangeCheckbox}
-                      color="primary"
+                      color="secondary"
                       required
                     />
                   }
                 />
             </Box>
-        </form>
 
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color='red'>Zamknij</Button>
-          <Button onClick={handleClickBuy} type="submit" autoFocus>
+          <Button type="submit" autoFocus>
             Przejdź do płatności
           </Button>
         </DialogActions>
+        </form>
       </Dialog>
 
       <Dialog

@@ -15,16 +15,16 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import { teal } from '@mui/material/colors'; // Import teal color
+import { cyan, pink, teal } from '@mui/material/colors'; // Import teal color
 import { createTheme, ThemeProvider } from '@mui/material/styles'; // Import createTheme and ThemeProvider
 
 const drawerWidth = 240;
-const navItems = ['Strona główna', 'Sklep', 'Regulamin', 'Kontakt do nas', 'Statystyki'];
 
 const navigationMap = [
-  { name: 'Strona główna', path: '/' },
+  { name: 'Strona główna', path: '/Main' },
   { name: 'Sklep', path: '/Shop' },
   { name: 'Regulamin', path: '/Rules' },
+  { name: "Roadmapa", path: '/Roadmap' },
 ];
 
 // Create a theme with dark mode
@@ -32,9 +32,12 @@ const darkTheme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: teal[500],
+      main: pink[400],
     },
-  },
+    secondary: {
+      main: cyan[300],
+    },
+  }
 });
 
 function DrawerAppBar(props) {
@@ -70,10 +73,10 @@ function DrawerAppBar(props) {
       </Typography>
       <Divider />
       <List>
-        {navItems.map((item) => (
-          <ListItem key={item} disablePadding>
-            <ListItemButton sx={{ textAlign: 'center' }} component={Link} to={item === 'Shop' ? '/shop' : '/'}>
-              <ListItemText primary={item} />
+      {navigationMap.map((navItem) => (
+          <ListItem key={navItem.name} disablePadding>
+            <ListItemButton sx={{ textAlign: 'center' }} component={Link} to={navItem.path}>
+              <ListItemText primary={navItem.name} />
             </ListItemButton>
           </ListItem>
         ))}
@@ -90,7 +93,7 @@ function DrawerAppBar(props) {
         <AppBar
           component="nav"
           sx={{
-            backgroundImage: `linear-gradient(to bottom, ${teal[500]} 0%, ${teal[500]}CC 50%, ${teal[500]}00 100%)`,
+            backgroundImage: `none`,
           }}
         >
           <Toolbar>
